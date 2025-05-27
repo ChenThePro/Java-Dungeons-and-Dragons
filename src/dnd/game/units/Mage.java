@@ -81,11 +81,9 @@ public class Mage extends Player {
 
     @Override
     public void levelUp() {
-        while (experience >= level * 50) {
-            super.levelUp();
-            mana.increaseMaxMana(25 * level);
-            spellPower += 10 * level;
-        }
+        super.levelUp();
+        mana.increaseMaxMana(25 * level);
+        spellPower += 10 * level;
         mana.restorePartial(mana.getMaxMana() / 4);
     }
 
@@ -95,12 +93,12 @@ public class Mage extends Player {
     }
 
     @Override
-    public void interact(dnd.game.tiles.Tile tile) {
-        tile.accept(this);
+    public void accept(Unit unit) {
+        // TODO
     }
 
     @Override
-    public void accept(Unit unit) {
-        // TODO
+    public void visit(Enemy enemy) {
+        enemy.accept(this);
     }
 }

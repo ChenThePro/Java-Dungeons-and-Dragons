@@ -29,13 +29,12 @@ public class Warrior extends Player {
             remainingCooldown--;
     }
 
+    @Override
     public void levelUp() {
-        while (experience >= 50 * level) {
-            super.levelUp();
-            health.increaseMaxHealth(5 * level);
-            attackPoints += 2 * level;
-            defensePoints += level;
-        }
+        super.levelUp();
+        health.increaseMaxHealth(5 * level);
+        attackPoints += 2 * level;
+        defensePoints += level;
         health.setToMaxHealth();
         remainingCooldown = 0;
     }
@@ -46,12 +45,12 @@ public class Warrior extends Player {
     }
 
     @Override
-    public void interact(Tile tile) {
-        tile.accept(this);
+    public void accept(Unit unit) {
+        unit.visit(this);  // Generic visit back
     }
 
     @Override
-    public void accept(Unit unit) {
-        // TODO
+    public void visit(Enemy enemy) {
+        enemy.accept(this);
     }
 }

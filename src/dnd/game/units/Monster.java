@@ -2,6 +2,7 @@ package dnd.game.units;
 
 import dnd.game.tiles.Position;
 import dnd.game.tiles.Unit;
+import dnd.game.utils.Dice;
 
 public class Monster extends Enemy {
     protected int visionRange;
@@ -18,11 +19,38 @@ public class Monster extends Enemy {
 
     @Override
     public void onGameTick() {
-        // move toward player if in vision range
+        if (isDead()) return;
+
+        Position playerPos = player.getPosition();
+        double dist = position.distance(playerPos);
+
+        if (dist < visionRange) {
+            int dx = playerPos.x() - position.x();
+            int dy = playerPos.y() - position.y();
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                tryMove(dx > 0 ? Direction.RIGHT : Direction.LEFT);
+            } else {
+                tryMove(dy > 0 ? Direction.DOWN : Direction.UP);
+            }
+        } else {
+            moveRandomly();
+        }
+    }
+
+    protected void moveRandomly() {
+        Direction[] dirs = Direction.values();
+        Direction d = dirs[Dice.roll(dirs.length)];
+        tryMove(d);
     }
 
     @Override
     public void accept(Unit unit) {
         // TODO
+    }
+
+    @Override
+    public void visit(Enemy enemy) {
+        enemy.accept(this);
     }
 }

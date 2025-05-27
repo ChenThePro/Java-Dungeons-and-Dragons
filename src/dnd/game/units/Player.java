@@ -1,8 +1,10 @@
 package dnd.game.units;
 
-import dnd.game.tiles.Tile;
+import dnd.game.engine.CLI;
+import dnd.game.tiles.Empty;
 import dnd.game.tiles.Unit;
 import dnd.game.tiles.Position;
+import dnd.game.utils.Dice;
 
 public abstract class Player extends Unit implements HeroicUnit {
     protected int experience;
@@ -16,8 +18,14 @@ public abstract class Player extends Unit implements HeroicUnit {
 
     public void gainXP(int xp) {
         experience += xp;
-        if (experience >= 50 * level)
+        while (experience >= 50 * level) {
+            experience -= 50 * level;
             levelUp();
+        }
+    }
+
+    public void Die() {
+        tile = 'X';
     }
 
     protected void levelUp() {
@@ -26,6 +34,11 @@ public abstract class Player extends Unit implements HeroicUnit {
         health.increaseMaxHealth(10 * level);
         attackPoints += 4 * level;
         defensePoints += level;
+        CLI.announceLevelUp(this);
+    }
+
+    public int getDefense() {
+        return defensePoints;
     }
 
     @Override
@@ -33,5 +46,23 @@ public abstract class Player extends Unit implements HeroicUnit {
         return super.description() + "\tLevel: " + level + "\tXP: " + experience;
     }
 
-    public abstract void interact(Tile tile); // override for visitor pattern
+    public void engage(Enemy enemy) {
+        int attackRoll = Dice.roll(attackPoints);
+        int defenseRoll = Dice.roll(enemy.getDefense());
+        int damage = Math.max(attackRoll - defenseRoll, 0);
+
+        CLI.reportCombat(this, enemy, attackRoll, defenseRoll, damage);
+
+        enemy.takeDamage(damage);
+
+        if (enemy.isDead()) {
+            gainXP(enemy.getExperienceValue());
+            board[enemy.getPosition().x()][enemy.getPosition().y()] = board[getPosition().x()][getPosition().y()];
+            board[getPosition().x()][getPosition().y()] = new Empty(enemy.getPosition());
+        }
+    }
+
+    public int getLevel() {
+        return level;
+    }
 }

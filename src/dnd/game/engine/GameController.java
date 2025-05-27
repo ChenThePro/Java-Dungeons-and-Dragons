@@ -13,6 +13,7 @@ public class GameController {
     public GameController(Tile[][] board, Player player) {
         this.board = board;
         this.player = player;
+        player.setBoard(board);
     }
 
     public void gameTick(char input) {
@@ -28,8 +29,22 @@ public class GameController {
     }
 
     private void movePlayer(char dir) {
-        // Compute target Position, validate tile, call tile.accept(player)
+        int dx = 0, dy = 0;
+        switch (dir) {
+            case 'w' -> dy = -1;
+            case 's' -> dy = 1;
+            case 'a' -> dx = -1;
+            case 'd' -> dx = 1;
+        }
+        Position currentPos = player.getPosition();
+        int newX = currentPos.x() + dx;
+        int newY = currentPos.y() + dy;
+        if (newX >= 0 && newX < board[0].length && newY >= 0 && newY < board.length) {
+            Tile targetTile = board[newY][newX];
+            targetTile.accept(player);
+        }
     }
+
 
     public void printBoard() {
         for (Tile[] row : board) {
@@ -45,5 +60,9 @@ public class GameController {
 
     public void setEnemies(List<Enemy> enemies) {
         this.enemies = enemies;
+        for (Enemy e : enemies) {
+            e.setPlayerReference(player);
+            e.setBoard(board);
+        }
     }
 }
