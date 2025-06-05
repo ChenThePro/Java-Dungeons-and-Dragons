@@ -6,30 +6,46 @@ import dnd.game.units.*;
 import java.util.*;
 
 public class GameController {
-    private Tile[][] board;
-    private Player player;
+    private final Tile[][] board;
+    private final Player player;
     private List<Enemy> enemies = new ArrayList<>();
 
     public GameController(Tile[][] board, Player player) {
         this.board = board;
         this.player = player;
+        player.setBoard(board);
     }
 
     public void gameTick(char input) {
         switch (input) {
             case 'w', 'a', 's', 'd' -> movePlayer(input);
             case 'e' -> player.castAbility();
-            case 'q' -> {} // Do nothing
+            case 'q' -> {}
         }
-
         player.onGameTick();
-        for (Enemy e : enemies) e.onGameTick();
-        // Enemy movement + combat logic
+        for (Enemy e : enemies)
+            e.onGameTick();
     }
 
     private void movePlayer(char dir) {
-        // Compute target Position, validate tile, call tile.accept(player)
+        int dx = 0, dy = 0;
+        switch (dir) {
+            case 'w' -> dy = -1;
+            case 's' -> dy = 1;
+            case 'a' -> dx = -1;
+            case 'd' -> dx = 1;
+        }
+        Position currentPos = player.getPosition();
+        int newX = currentPos.x() + dx;
+        int newY = currentPos.y() + dy;
+        if (newX >= 0 && newX < board[0].length && newY >= 0 && newY < board.length) {
+            Tile targetTile = board[newY][newX];
+            if (targetTile instanceof Enemy)
+                player.interact((Enemy)targetTile);
+            else targetTile.accept(player);
+        }
     }
+
 
     public void printBoard() {
         for (Tile[] row : board) {
@@ -45,5 +61,9 @@ public class GameController {
 
     public void setEnemies(List<Enemy> enemies) {
         this.enemies = enemies;
+        for (Enemy e : enemies) {
+            e.setPlayerReference(player);
+            e.setBoard(board);
+        }
     }
 }

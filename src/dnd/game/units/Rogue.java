@@ -29,11 +29,10 @@ public class Rogue extends Player {
 
     @Override
     public void levelUp() {
-        while (experience >= level * 50) {
-            super.levelUp();
-            attackPoints += 3 * level;
-        }
+        super.levelUp();
+        attackPoints += 3 * level;
         energy = 100;
+        health.setToMaxHealth();
     }
 
     @Override
@@ -42,12 +41,7 @@ public class Rogue extends Player {
     }
 
     @Override
-    public void interact(Tile tile) {
-        tile.accept(this);
-    }
-
-    @Override
     public void accept(Unit unit) {
-        // TODO
+        unit.moveTo(this);
     }
 }

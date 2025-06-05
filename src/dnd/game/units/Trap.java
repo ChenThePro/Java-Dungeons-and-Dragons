@@ -20,10 +20,16 @@ public class Trap extends Enemy {
 
     @Override
     public void onGameTick() {
+        if (isDead()) return;
+
         ticksCount++;
+        if (ticksCount >= (visibilityTime + invisibilityTime)) ticksCount = 0;
+
         visible = ticksCount < visibilityTime;
-        if (ticksCount == visibilityTime + invisibilityTime)
-            ticksCount = 0;
+
+        if (position.distance(player.getPosition()) < 2) {
+            interact();
+        }
     }
 
     @Override

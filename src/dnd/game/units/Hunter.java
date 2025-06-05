@@ -34,12 +34,11 @@ public class Hunter extends Player {
 
     @Override
     protected void levelUp() {
-        while (experience >= level * 50) {
-            super.levelUp();
-            arrowsCount += 10 * level;
-            attackPoints += 2 * level;
-            defensePoints += level;
-        }
+        super.levelUp();
+        arrowsCount += 10 * level;
+        attackPoints += 2 * level;
+        defensePoints += level;
+        health.setToMaxHealth();
     }
 
     @Override
@@ -48,12 +47,7 @@ public class Hunter extends Player {
     }
 
     @Override
-    public void interact(dnd.game.tiles.Tile tile) {
-        tile.accept(this);
-    }
-
-    @Override
     public void accept(Unit unit) {
-        // TODO
+        unit.moveTo(this);
     }
 }

@@ -1,13 +1,14 @@
 package dnd.game.tiles;
 
 import dnd.game.units.Information;
-
-import java.util.Random;
+import dnd.game.units.Player;
 
 public abstract class Unit extends Tile implements Information {
     protected String name;
     protected Health health;
     protected int attackPoints, defensePoints;
+    protected Player player;
+    protected Tile[][] board;
 
     public Unit(char tile, Position position, String name, int maxHealth, int attackPoints, int defensePoints) {
         super(tile, position);
@@ -15,6 +16,23 @@ public abstract class Unit extends Tile implements Information {
         health = new Health(maxHealth);
         this.attackPoints = attackPoints;
         this.defensePoints = defensePoints;
+    }
+
+    public void setBoard(Tile[][] board) {
+        this.board = board;
+    }
+
+    public void moveTo(Tile target) {
+        Position current = position;
+        Position targetPos = target.getPosition();
+        board[current.y()][current.x()] = target;
+        board[targetPos.y()][targetPos.x()] = this;
+        position = targetPos;
+        target.setPosition(current);
+    }
+
+    public int getDefense() {
+        return defensePoints;
     }
 
     protected static class Health {
@@ -55,13 +73,15 @@ public abstract class Unit extends Tile implements Information {
         }
     }
 
-    public void moveTo(Tile target) {
-        this.position = target.getPosition();
+    public void setPlayerReference(Player p) {
+        player = p;
+    }
+
+    public int getHealth() {
+        return health.getCurrentHealth();
     }
 
     public abstract void onGameTick();
-
-    public abstract void interact(Tile t);
 
     @Override
     public String getName() {
@@ -80,13 +100,5 @@ public abstract class Unit extends Tile implements Information {
 
     public boolean isDead() {
         return health.isDead();
-    }
-
-    public int rollAttack() {
-        return new Random().nextInt(attackPoints + 1);
-    }
-
-    public int rollDefense() {
-        return new Random().nextInt(defensePoints + 1);
     }
 }

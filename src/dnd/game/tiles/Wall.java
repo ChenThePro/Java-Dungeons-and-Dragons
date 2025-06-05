@@ -8,6 +8,6 @@ public class Wall extends Tile {
 
     @Override
     public void accept(Unit unit) {
-        // Blocked, do nothing
+        // Do nothing — wall blocks movement
     }
 }
