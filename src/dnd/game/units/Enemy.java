@@ -23,30 +23,21 @@ public abstract class Enemy extends Unit {
         return super.description() + "\tXP: " + experienceValue;
     }
 
-    public void engage(Player player) {
+    public void interact() {
         int attackRoll = Dice.roll(attackPoints);
         int defenseRoll = Dice.roll(player.getDefense());
         int damage = Math.max(attackRoll - defenseRoll, 0);
-
-        CLI.reportCombat(this, player, attackRoll, defenseRoll, damage);
-
         player.takeDamage(damage);
-
-        if (player.isDead()) {
+        CLI.reportCombat(this, player, attackRoll, defenseRoll, damage);
+        if (player.isDead())
             player.Die();
-        }
-    }
-
-    public int getDefense() {
-        return defensePoints;
     }
 
     protected void tryMove(Direction dir) {
         int newX = position.x() + dir.dx;
         int newY = position.y() + dir.dy;
-
         Tile destination = board[newY][newX];
-        destination.accept(this); // Calls visitor logic
+        destination.accept(this);
     }
 
     @Override

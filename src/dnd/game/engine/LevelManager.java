@@ -15,29 +15,24 @@ public class LevelManager {
         this.levelsPath = levelsPath;
     }
 
-    public LevelData loadNextLevel() throws IOException {
+    public LevelData loadNextLevel(Player player) throws IOException {
         String fileName = String.format("level_%d", currentLevel++);
         Path path = Paths.get(levelsPath, fileName);
-
         if (!Files.exists(path)) return null;
-
         List<String> lines = Files.readAllLines(path);
-        int rows = lines.size(), cols = lines.get(0).length();
+        int rows = lines.size(), cols = lines.getFirst().length();
         Tile[][] board = new Tile[rows][cols];
         List<Enemy> enemies = new ArrayList<>();
-        Player player = null;
-
-        for (int y = 0; y < rows; y++) {
+        for (int y = 0; y < rows; y++)
             for (int x = 0; x < cols; x++) {
                 char c = lines.get(y).charAt(x);
                 Position pos = new Position(x, y);
-
                 Tile t;
                 switch (c) {
                     case '#' -> t = new Wall(pos);
                     case '.' -> t = new Empty(pos);
                     case '@' -> {
-                        player = PlayerFactory.getDefaultPlayer(pos); // Replace with menu choice
+                        player.setPosition(pos);
                         t = player;
                     }
                     default -> {
@@ -48,7 +43,6 @@ public class LevelManager {
                 }
                 board[y][x] = t;
             }
-        }
 
         return new LevelData(board, player, enemies);
     }

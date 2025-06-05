@@ -1,9 +1,5 @@
 package dnd.game.tiles;
 
-import dnd.game.units.Player;
-
-import dnd.game.units.Enemy;
-
 public abstract class Tile {
     protected char tile;
     protected Position position;
@@ -17,15 +13,15 @@ public abstract class Tile {
         return position;
     }
 
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     public char getTile() {
         return tile;
     }
 
-    public abstract void accept(Unit unit); // Visitor pattern
-
-    public abstract void visit(Player player);
-
-    public abstract void visit(Enemy enemy);
+    public abstract void accept(Unit unit);
 
     @Override
     public String toString() { return Character.toString(tile); }

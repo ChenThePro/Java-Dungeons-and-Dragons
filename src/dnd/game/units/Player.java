@@ -16,11 +16,25 @@ public abstract class Player extends Unit implements HeroicUnit {
         level = 1;
     }
 
+    public void interact(Enemy enemy) {
+        int attackRoll = Dice.roll(attackPoints);
+        int defenseRoll = Dice.roll(enemy.getDefense());
+        int damage = Math.max(attackRoll - defenseRoll, 0);
+        enemy.takeDamage(damage);
+        CLI.reportCombat(this, enemy, attackRoll, defenseRoll, damage);
+        if (enemy.isDead()) {
+            gainXP(enemy.getExperienceValue());
+            board[enemy.getPosition().y()][enemy.getPosition().x()] = this;
+            board[getPosition().y()][getPosition().x()] = new Empty(getPosition());
+            setPosition(enemy.getPosition());
+        }
+    }
+
     public void gainXP(int xp) {
         experience += xp;
         while (experience >= 50 * level) {
-            experience -= 50 * level;
             levelUp();
+            CLI.announceLevelUp(this);
         }
     }
 
@@ -34,32 +48,11 @@ public abstract class Player extends Unit implements HeroicUnit {
         health.increaseMaxHealth(10 * level);
         attackPoints += 4 * level;
         defensePoints += level;
-        CLI.announceLevelUp(this);
-    }
-
-    public int getDefense() {
-        return defensePoints;
     }
 
     @Override
     public String description() {
         return super.description() + "\tLevel: " + level + "\tXP: " + experience;
-    }
-
-    public void engage(Enemy enemy) {
-        int attackRoll = Dice.roll(attackPoints);
-        int defenseRoll = Dice.roll(enemy.getDefense());
-        int damage = Math.max(attackRoll - defenseRoll, 0);
-
-        CLI.reportCombat(this, enemy, attackRoll, defenseRoll, damage);
-
-        enemy.takeDamage(damage);
-
-        if (enemy.isDead()) {
-            gainXP(enemy.getExperienceValue());
-            board[enemy.getPosition().x()][enemy.getPosition().y()] = board[getPosition().x()][getPosition().y()];
-            board[getPosition().x()][getPosition().y()] = new Empty(enemy.getPosition());
-        }
     }
 
     public int getLevel() {

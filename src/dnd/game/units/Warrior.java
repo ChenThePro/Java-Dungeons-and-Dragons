@@ -46,11 +46,6 @@ public class Warrior extends Player {
 
     @Override
     public void accept(Unit unit) {
-        unit.visit(this);  // Generic visit back
-    }
-
-    @Override
-    public void visit(Enemy enemy) {
-        enemy.accept(this);
+        unit.moveTo(this);
     }
 }

@@ -18,10 +18,8 @@ public class Boss extends Monster implements HeroicUnit {
     @Override
     public void onGameTick() {
         if (!isDead()) return;
-
         Position playerPos = player.getPosition();
         double dist = position.distance(playerPos);
-
         if (dist < visionRange) {
             if (combatTicks >= abilityFrequency) {
                 combatTicks = 0;
@@ -34,6 +32,12 @@ public class Boss extends Monster implements HeroicUnit {
             combatTicks = 0;
             moveRandomly();
         }
+        // move like monster, but:
+       //  combatTicks++;
+       // if (combatTicks == abilityFrequency) {
+       //     castAbility();
+       //     combatTicks = 0;
+       // }
     }
 
     private void chasePlayer() {
@@ -48,17 +52,11 @@ public class Boss extends Monster implements HeroicUnit {
     }
 
     @Override
-    public void visit(Enemy enemy) {
-
-    }
-
-    @Override
     public void castAbility() {
         int attackRoll = Dice.roll(attackPoints);
         int defenseRoll = Dice.roll(player.getDefense());
         int dmg = Math.max(attackRoll - defenseRoll, 0);
-
-        CLI.reportBossCast(this, player, attackRoll, defenseRoll, dmg);
         player.takeDamage(dmg);
+        CLI.reportBossCast(this, player, attackRoll, defenseRoll, dmg);
     }
 }

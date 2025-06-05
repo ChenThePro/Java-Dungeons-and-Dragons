@@ -6,8 +6,8 @@ import dnd.game.units.*;
 import java.util.*;
 
 public class GameController {
-    private Tile[][] board;
-    private Player player;
+    private final Tile[][] board;
+    private final Player player;
     private List<Enemy> enemies = new ArrayList<>();
 
     public GameController(Tile[][] board, Player player) {
@@ -20,12 +20,11 @@ public class GameController {
         switch (input) {
             case 'w', 'a', 's', 'd' -> movePlayer(input);
             case 'e' -> player.castAbility();
-            case 'q' -> {} // Do nothing
+            case 'q' -> {}
         }
-
         player.onGameTick();
-        for (Enemy e : enemies) e.onGameTick();
-        // Enemy movement + combat logic
+        for (Enemy e : enemies)
+            e.onGameTick();
     }
 
     private void movePlayer(char dir) {
@@ -41,7 +40,9 @@ public class GameController {
         int newY = currentPos.y() + dy;
         if (newX >= 0 && newX < board[0].length && newY >= 0 && newY < board.length) {
             Tile targetTile = board[newY][newX];
-            targetTile.accept(player);
+            if (targetTile instanceof Enemy)
+                player.interact((Enemy)targetTile);
+            else targetTile.accept(player);
         }
     }
 

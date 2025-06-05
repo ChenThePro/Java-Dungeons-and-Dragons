@@ -2,6 +2,7 @@ package dnd;
 
 import dnd.game.tiles.*;
 import dnd.game.engine.*;
+import dnd.game.units.Player;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -15,7 +16,8 @@ public class Main {
         String levelDir = args[0];
         LevelManager lm = new LevelManager(levelDir);
         LevelManager.LevelData level;
-        while ((level = lm.loadNextLevel()) != null) {
+        Player player = PlayerFactory.createPlayer(CLI.choosePlayer(), new Position(0, 0));
+        while ((level = lm.loadNextLevel(player)) != null) {
             GameController controller = new GameController(level.board(), level.player());
             controller.setEnemies(level.enemies());
             Scanner scanner = new Scanner(System.in);
@@ -27,6 +29,7 @@ public class Main {
                 level.enemies().removeIf(Unit::isDead);
             }
             if (level.player().isDead()) {
+                controller.printBoard();
                 System.out.println("Game Over 💀");
                 System.exit(-1);
             }

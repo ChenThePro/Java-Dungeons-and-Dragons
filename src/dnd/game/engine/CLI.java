@@ -3,10 +3,11 @@ package dnd.game.engine;
 import dnd.game.tiles.Unit;
 import dnd.game.units.Player;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class CLI {
-    private final Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
     private final GameController controller;
 
     public CLI(GameController controller) {
@@ -33,15 +34,31 @@ public class CLI {
         System.out.println("Attack: " + atk + ", Defense: " + def + ", Damage: " + dmg);
     }
 
-
-
     public static void reportCombat(Unit attacker, Unit defender, int atk, int def, int dmg) {
         System.out.println(attacker.getName() + " engages " + defender.getName());
         System.out.println("Attack Roll: " + atk + ", Defense Roll: " + def);
         System.out.println("Damage dealt: " + dmg);
-        if (defender.isDead()) {
+        System.out.println("defender has " + defender.getHealth() + " health");
+        if (defender.isDead())
             System.out.println(defender.getName() + " died.");
-        }
     }
 
+    public static int choosePlayer() {
+        while (true) {
+            System.out.println("Select player");
+            List<Player> playerList = PlayerFactory.listPlayer();
+            for (int i = 0; i < playerList.size(); i++)
+                System.out.printf("%d. %s%n", i + 1, playerList.get(i).description());
+            try {
+                int selected = Integer.parseInt(scanner.next()) - 1;
+                if (0 <= selected && selected < playerList.size()) {
+                    System.out.printf("You have selected: \n%s\n", playerList.get(selected).getName());
+                    return selected;
+                }
+            }
+            catch (NumberFormatException e) {
+                System.out.println("Not a number");
+            }
+        }
+    }
 }

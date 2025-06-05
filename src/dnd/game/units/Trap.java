@@ -28,17 +28,12 @@ public class Trap extends Enemy {
         visible = ticksCount < visibilityTime;
 
         if (position.distance(player.getPosition()) < 2) {
-            engage(player);
+            interact();
         }
     }
 
     @Override
     public void accept(Unit unit) {
-
-    }
-
-    @Override
-    public void visit(Enemy enemy) {
 
     }
 

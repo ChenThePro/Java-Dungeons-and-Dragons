@@ -38,6 +38,7 @@ public class Hunter extends Player {
         arrowsCount += 10 * level;
         attackPoints += 2 * level;
         defensePoints += level;
+        health.setToMaxHealth();
     }
 
     @Override
@@ -47,11 +48,6 @@ public class Hunter extends Player {
 
     @Override
     public void accept(Unit unit) {
-        // TODO
-    }
-
-    @Override
-    public void visit(Enemy enemy) {
-        enemy.accept(this);
+        unit.moveTo(this);
     }
 }

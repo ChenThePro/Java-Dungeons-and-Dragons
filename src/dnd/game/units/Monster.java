@@ -20,37 +20,29 @@ public class Monster extends Enemy {
     @Override
     public void onGameTick() {
         if (isDead()) return;
-
         Position playerPos = player.getPosition();
         double dist = position.distance(playerPos);
-
         if (dist < visionRange) {
-            int dx = playerPos.x() - position.x();
-            int dy = playerPos.y() - position.y();
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                tryMove(dx > 0 ? Direction.RIGHT : Direction.LEFT);
-            } else {
-                tryMove(dy > 0 ? Direction.DOWN : Direction.UP);
+            if (dist == 1)
+                interact();
+            else {
+                int dx = playerPos.x() - position.x();
+                int dy = playerPos.y() - position.y();
+                if (Math.abs(dx) > Math.abs(dy))
+                    tryMove(dx > 0 ? Direction.RIGHT : Direction.LEFT);
+                else tryMove(dy > 0 ? Direction.DOWN : Direction.UP);
             }
-        } else {
-            moveRandomly();
-        }
+        } else moveRandomly();
     }
 
     protected void moveRandomly() {
         Direction[] dirs = Direction.values();
-        Direction d = dirs[Dice.roll(dirs.length)];
+        Direction d = dirs[Dice.roll(dirs.length - 1)];
         tryMove(d);
     }
 
     @Override
     public void accept(Unit unit) {
         // TODO
-    }
-
-    @Override
-    public void visit(Enemy enemy) {
-        enemy.accept(this);
     }
 }

@@ -85,6 +85,7 @@ public class Mage extends Player {
         mana.increaseMaxMana(25 * level);
         spellPower += 10 * level;
         mana.restorePartial(mana.getMaxMana() / 4);
+        health.setToMaxHealth();
     }
 
     @Override
@@ -94,11 +95,6 @@ public class Mage extends Player {
 
     @Override
     public void accept(Unit unit) {
-        // TODO
-    }
-
-    @Override
-    public void visit(Enemy enemy) {
-        enemy.accept(this);
+        unit.moveTo(this);
     }
 }

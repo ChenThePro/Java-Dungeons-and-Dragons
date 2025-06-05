@@ -1,6 +1,5 @@
 package dnd.game.tiles;
 
-import dnd.game.units.Enemy;
 import dnd.game.units.Information;
 import dnd.game.units.Player;
 
@@ -23,16 +22,18 @@ public abstract class Unit extends Tile implements Information {
         this.board = board;
     }
 
-    protected void move(Tile target) {
-        Position current = this.position;
+    public void moveTo(Tile target) {
+        Position current = position;
         Position targetPos = target.getPosition();
-
-        board[current.y()][current.x()] = new Empty(current);
+        board[current.y()][current.x()] = target;
         board[targetPos.y()][targetPos.x()] = this;
-
-        this.position = targetPos;
+        position = targetPos;
+        target.setPosition(current);
     }
 
+    public int getDefense() {
+        return defensePoints;
+    }
 
     protected static class Health {
         private int maxHealth;
@@ -72,34 +73,12 @@ public abstract class Unit extends Tile implements Information {
         }
     }
 
-    // Injected into enemies
     public void setPlayerReference(Player p) {
         player = p;
     }
 
-
-    public void visit(Empty tile) {
-        move(tile);
-    }
-
-    @Override
-    public void visit(Player player) {
-        if (this instanceof Enemy) {
-            player.engage((Enemy) this);
-        }
-    }
-
-
-    public void visit(Wall wall) {
-        // Blocked — do nothing
-    }
-
-    public void visit(Unit other) {
-        if (this instanceof Player && other instanceof Enemy) {
-            ((Player) this).engage((Enemy) other);
-        } else if (this instanceof Enemy && other instanceof Player) {
-            ((Enemy) this).engage((Player) other);
-        }
+    public int getHealth() {
+        return health.getCurrentHealth();
     }
 
     public abstract void onGameTick();

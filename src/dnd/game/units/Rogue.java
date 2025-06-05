@@ -32,6 +32,7 @@ public class Rogue extends Player {
         super.levelUp();
         attackPoints += 3 * level;
         energy = 100;
+        health.setToMaxHealth();
     }
 
     @Override
@@ -41,11 +42,6 @@ public class Rogue extends Player {
 
     @Override
     public void accept(Unit unit) {
-        // TODO
-    }
-
-    @Override
-    public void visit(Enemy enemy) {
-        enemy.accept(this);
+        unit.moveTo(this);
     }
 }
