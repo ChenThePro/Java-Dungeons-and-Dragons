@@ -63,4 +63,8 @@ public class Hunter extends Player {
     public String description() {
         return super.description() + "\tArrows: " + arrowsCount;
     }
+
+    public int getArrowsCount() {
+        return arrowsCount;
+    }
 }

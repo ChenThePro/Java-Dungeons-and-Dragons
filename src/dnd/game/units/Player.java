@@ -48,4 +48,8 @@ public abstract class Player extends Unit implements HeroicUnit {
     public int getLevel() {
         return level;
     }
+
+    public int getXP() {
+        return experience;
+    }
 }
