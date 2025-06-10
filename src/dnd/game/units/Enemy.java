@@ -1,10 +1,10 @@
 package dnd.game.units;
 
-import dnd.game.engine.CLI;
-import dnd.game.tiles.Position;
+import dnd.game.tiles.Empty;
+import dnd.game.utils.Position;
 import dnd.game.tiles.Tile;
 import dnd.game.tiles.Unit;
-import dnd.game.utils.Dice;
+import dnd.game.utils.Direction;
 
 public abstract class Enemy extends Unit {
     protected int experienceValue;
@@ -14,6 +14,7 @@ public abstract class Enemy extends Unit {
         this.experienceValue = xp;
     }
 
+    @Override
     public int getExperienceValue() {
         return experienceValue;
     }
@@ -21,16 +22,6 @@ public abstract class Enemy extends Unit {
     @Override
     public String description() {
         return super.description() + "\tXP: " + experienceValue;
-    }
-
-    public void interact() {
-        int attackRoll = Dice.roll(attackPoints);
-        int defenseRoll = Dice.roll(player.getDefense());
-        int damage = Math.max(attackRoll - defenseRoll, 0);
-        player.takeDamage(damage);
-        CLI.reportCombat(this, player, attackRoll, defenseRoll, damage);
-        if (player.isDead())
-            player.Die();
     }
 
     protected void tryMove(Direction dir) {
@@ -41,7 +32,13 @@ public abstract class Enemy extends Unit {
     }
 
     @Override
-    public void onGameTick() {
-        // Default enemy does nothing. Override in subclasses (Monster, Trap, Boss)
+    public void accept(Unit unit) {
+        if (unit.getExperienceValue() == 0) {
+            super.accept(unit);
+            if (isDead()) {
+                unit.moveTo(this);
+                board[position.y()][position.x()] = new Empty(position);
+            }
+        }
     }
 }

@@ -10,6 +10,6 @@ public class Dice {
     }
 
     public static <T> T chooseRandom(java.util.List<T> list) {
-        return list.isEmpty() ? null : list.get(rand.nextInt(list.size()));
+        return list.get(rand.nextInt(list.size()));
     }
 }

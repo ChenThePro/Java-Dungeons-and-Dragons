@@ -1,6 +1,10 @@
 package dnd.game.units;
 
-import dnd.game.tiles.*;
+import dnd.game.tiles.Unit;
+import dnd.game.utils.Dice;
+import dnd.game.utils.Position;
+
+import java.util.List;
 
 public class Warrior extends Player {
     private final int abilityCooldown;
@@ -14,13 +18,19 @@ public class Warrior extends Player {
     }
 
     @Override
-    public void castAbility() {
+    public void castAbility(List<Unit> unitList) {
         if (remainingCooldown > 0)
-            throw new IllegalStateException("Cannot cast ability - ability is on cooldown");
+            notifyFailure("Cannot cast ability - ability is on cooldown");
         remainingCooldown = abilityCooldown;
-        int heal = 10 * defensePoints;
-        health.heal(heal);
-        // logic to hit random enemy by 10% of maxHealth within range < 3 deferred to controller
+        health.heal(10 * defensePoints);
+        List<Unit> enemiesInRange = unitList.stream()
+                .filter(unit -> position.distance(unit.getPosition()) < 3).toList();
+        if (!enemiesInRange.isEmpty()) {
+            Unit randomEnemy = Dice.chooseRandom(enemiesInRange);
+            int damage = (int) (0.1 * health.getMaxHealth());
+            randomEnemy.takeDamage(damage);
+            notifyCast(this, randomEnemy, attackPoints, 0, damage, "Avenger’s Shield");
+        } else notifyFailure("Cannot cast ability - no enemies in  range");
     }
 
     @Override
@@ -42,10 +52,5 @@ public class Warrior extends Player {
     @Override
     public String description() {
         return super.description() + "\tCooldown: " + remainingCooldown + "/" + abilityCooldown;
-    }
-
-    @Override
-    public void accept(Unit unit) {
-        unit.moveTo(this);
     }
 }

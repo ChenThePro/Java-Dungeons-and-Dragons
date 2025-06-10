@@ -2,6 +2,7 @@ package dnd.game.engine;
 
 import dnd.game.tiles.*;
 import dnd.game.units.*;
+import dnd.game.utils.Position;
 
 import java.io.*;
 import java.nio.file.*;
@@ -16,13 +17,13 @@ public class LevelManager {
     }
 
     public LevelData loadNextLevel(Player player) throws IOException {
-        String fileName = String.format("level_%d", currentLevel++);
+        String fileName = String.format("level%d", currentLevel++);
         Path path = Paths.get(levelsPath, fileName);
         if (!Files.exists(path)) return null;
         List<String> lines = Files.readAllLines(path);
         int rows = lines.size(), cols = lines.getFirst().length();
         Tile[][] board = new Tile[rows][cols];
-        List<Enemy> enemies = new ArrayList<>();
+        List<Unit> enemies = new ArrayList<>();
         for (int y = 0; y < rows; y++)
             for (int x = 0; x < cols; x++) {
                 char c = lines.get(y).charAt(x);
@@ -47,5 +48,5 @@ public class LevelManager {
         return new LevelData(board, player, enemies);
     }
 
-    public record LevelData(Tile[][] board, Player player, List<Enemy> enemies) {}
+    public record LevelData(Tile[][] board, Player player, List<Unit> enemies) {}
 }

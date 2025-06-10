@@ -1,4 +1,4 @@
-package dnd.game.tiles;
+package dnd.game.utils;
 
 public record Position(int x, int y) {
 

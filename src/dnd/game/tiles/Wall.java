@@ -1,5 +1,7 @@
 package dnd.game.tiles;
 
+import dnd.game.utils.Position;
+
 public class Wall extends Tile {
 
     public Wall(Position position) {
@@ -7,7 +9,5 @@ public class Wall extends Tile {
     }
 
     @Override
-    public void accept(Unit unit) {
-        // Do nothing — wall blocks movement
-    }
+    public void accept(Unit unit) {}
 }

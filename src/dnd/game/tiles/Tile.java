@@ -1,5 +1,7 @@
 package dnd.game.tiles;
 
+import dnd.game.utils.Position;
+
 public abstract class Tile {
     protected char tile;
     protected Position position;

@@ -1,7 +1,10 @@
 package dnd.game.units;
 
-import dnd.game.tiles.Position;
 import dnd.game.tiles.Unit;
+import dnd.game.utils.Dice;
+import dnd.game.utils.Position;
+
+import java.util.List;
 
 public class Hunter extends Player {
     private final int range;
@@ -15,21 +18,36 @@ public class Hunter extends Player {
     }
 
     @Override
-    public void castAbility() {
-        if (arrowsCount <= 0)
-            throw new IllegalStateException("Cannot cast ability - no arrows");
-
-        // logic to find closest enemy within range
-        arrowsCount--;
+    public void castAbility(List<Unit> unitList) {
+        if (arrowsCount == 0)
+            notifyFailure("Cannot cast ability - no arrows");
+        Unit closestEnemy = null;
+        double closestDistance = Double.MAX_VALUE;
+        double distance;
+        for (Unit unit : unitList) {
+            distance = position.distance(unit.getPosition());
+            if (distance <= range && distance < closestDistance) {
+                closestDistance = distance;
+                closestEnemy = unit;
+            }
+        }
+        if (closestEnemy != null) {
+            arrowsCount--;
+            int defenseRoll = Dice.roll(closestEnemy.getDefense());
+            int damage = Math.max(0, attackPoints - defenseRoll);
+            closestEnemy.takeDamage(damage);
+            notifyCast(this, closestEnemy, attackPoints, defenseRoll, damage, "Shoot");
+        }
+        else notifyFailure("Cannot cast ability - no enemies in  range");
     }
 
     @Override
     public void onGameTick() {
-        ticksCount++;
         if (ticksCount == 10) {
             arrowsCount += level;
             ticksCount = 0;
         }
+        else ticksCount++;
     }
 
     @Override
@@ -44,10 +62,5 @@ public class Hunter extends Player {
     @Override
     public String description() {
         return super.description() + "\tArrows: " + arrowsCount;
-    }
-
-    @Override
-    public void accept(Unit unit) {
-        unit.moveTo(this);
     }
 }

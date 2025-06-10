@@ -1,7 +1,6 @@
 package dnd.game.units;
 
-import dnd.game.tiles.Position;
-import dnd.game.tiles.Unit;
+import dnd.game.utils.Position;
 
 public class Trap extends Enemy {
     private final int visibilityTime;
@@ -20,21 +19,11 @@ public class Trap extends Enemy {
 
     @Override
     public void onGameTick() {
-        if (isDead()) return;
-
-        ticksCount++;
-        if (ticksCount >= (visibilityTime + invisibilityTime)) ticksCount = 0;
-
         visible = ticksCount < visibilityTime;
-
-        if (position.distance(player.getPosition()) < 2) {
-            interact();
-        }
-    }
-
-    @Override
-    public void accept(Unit unit) {
-
+        if (ticksCount == (visibilityTime + invisibilityTime)) ticksCount = 0;
+        else ticksCount++;
+        if (position.distance(player.getPosition()) < 2)
+            player.accept(this);
     }
 
     @Override

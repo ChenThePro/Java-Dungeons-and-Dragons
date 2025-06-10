@@ -1,47 +1,51 @@
 package dnd.game.units;
 
-import dnd.game.tiles.*;
+import dnd.game.tiles.Unit;
+import dnd.game.utils.Dice;
+import dnd.game.utils.Position;
+import dnd.game.utils.Resources;
+
+import java.util.List;
 
 public class Rogue extends Player {
-    private final int cost;
-    private int energy;
+    private final Resources resources;
 
     public Rogue(Position position, String name, int maxHealth, int attackPoints, int defensePoints, int cost) {
         super('@', position, name, maxHealth, attackPoints, defensePoints);
-        this.cost = cost;
-        energy = 100;
+        resources = new Resources(100, cost);
     }
 
     @Override
-    public void castAbility() {
-        if (energy < cost)
-            throw new IllegalStateException("Cannot cast ability - not enough energy");
-        // For each enemy within range < 2, deal damage (reduce health value) equals to the rogue’s
-        // attack points (each enemy will try to defend itself)
-        energy -= cost;
-        // logic deferred to controller/engine
+    public void castAbility(List<Unit> unitList) {
+        resources.consume();
+        List<Unit> enemiesInRange = unitList.stream()
+                .filter(unit -> position.distance(unit.getPosition()) < 2)
+                .toList();
+        if (enemiesInRange.isEmpty())
+            notifyFailure("Cannot cast ability - no enemies in  range");
+        else for (Unit enemy : enemiesInRange) {
+            int defenseRoll = Dice.roll(enemy.getDefense());
+            int damage = Math.max(0, attackPoints - defenseRoll);
+            enemy.takeDamage(damage);
+            notifyCast(this, enemy, attackPoints, defenseRoll, damage, "Fan of Knives");
+        }
     }
 
     @Override
     public void onGameTick() {
-        energy = Math.min(energy + 10, 100);
+        resources.regenerate(10);
     }
 
     @Override
     public void levelUp() {
         super.levelUp();
         attackPoints += 3 * level;
-        energy = 100;
+        resources.regenerate(100);
         health.setToMaxHealth();
     }
 
     @Override
     public String description() {
-        return super.description() + "\tEnergy: " + energy;
-    }
-
-    @Override
-    public void accept(Unit unit) {
-        unit.moveTo(this);
+        return super.description() + "\tEnergy: " + resources.getMaxResources();
     }
 }

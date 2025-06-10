@@ -1,7 +1,10 @@
 package dnd.game.tiles;
 
+import dnd.game.engine.GameEventListener;
 import dnd.game.units.Information;
 import dnd.game.units.Player;
+import dnd.game.utils.Dice;
+import dnd.game.utils.Position;
 
 public abstract class Unit extends Tile implements Information {
     protected String name;
@@ -9,6 +12,7 @@ public abstract class Unit extends Tile implements Information {
     protected int attackPoints, defensePoints;
     protected Player player;
     protected Tile[][] board;
+    protected GameEventListener listener;
 
     public Unit(char tile, Position position, String name, int maxHealth, int attackPoints, int defensePoints) {
         super(tile, position);
@@ -16,6 +20,10 @@ public abstract class Unit extends Tile implements Information {
         health = new Health(maxHealth);
         this.attackPoints = attackPoints;
         this.defensePoints = defensePoints;
+    }
+
+    public int getExperienceValue() {
+        return 0;
     }
 
     public void setBoard(Tile[][] board) {
@@ -33,6 +41,26 @@ public abstract class Unit extends Tile implements Information {
 
     public int getDefense() {
         return defensePoints;
+    }
+
+    public int getAttack() {
+        return attackPoints;
+    }
+
+    public void setEventListener(GameEventListener listener) {
+        this.listener = listener;
+    }
+
+    protected void notifyFailure(String message) {
+        listener.onFailure(message);
+    }
+
+    protected void notifyCombat(Unit attacker, Unit defender, int attackRoll, int defenseRoll, int damage) {
+        listener.onCombat(attacker, defender, attackRoll, defenseRoll, damage);
+    }
+
+    protected void notifyCast(Unit attacker, Unit defender, int attackRoll, int defenseRoll, int damage, String spell) {
+        listener.onCast(attacker, defender, attackRoll, defenseRoll, damage, spell);
     }
 
     protected static class Health {
@@ -100,5 +128,14 @@ public abstract class Unit extends Tile implements Information {
 
     public boolean isDead() {
         return health.isDead();
+    }
+
+    @Override
+    public void accept(Unit unit) {
+        int attackRoll = Dice.roll(unit.getAttack());
+        int defenseRoll = Dice.roll(defensePoints);
+        int damage = Math.max(attackRoll - defenseRoll, 0);
+        takeDamage(damage);
+        notifyCombat(unit, this, attackRoll, defenseRoll, damage);
     }
 }

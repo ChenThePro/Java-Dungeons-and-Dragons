@@ -1,8 +1,10 @@
 package dnd.game.units;
 
-import dnd.game.engine.CLI;
-import dnd.game.tiles.Position;
+import dnd.game.tiles.Unit;
+import dnd.game.utils.Position;
 import dnd.game.utils.Dice;
+
+import java.util.List;
 
 public class Boss extends Monster implements HeroicUnit {
     private final int abilityFrequency;
@@ -17,46 +19,28 @@ public class Boss extends Monster implements HeroicUnit {
 
     @Override
     public void onGameTick() {
-        if (!isDead()) return;
         Position playerPos = player.getPosition();
         double dist = position.distance(playerPos);
         if (dist < visionRange) {
-            if (combatTicks >= abilityFrequency) {
+            if (combatTicks == abilityFrequency) {
                 combatTicks = 0;
-                castAbility();  // Shoebodybop
-            } else {
-                combatTicks++;
+                castAbility(null);
             }
-            chasePlayer();
+            else {
+                combatTicks++;
+                chasePlayer(playerPos);
+            }
         } else {
             combatTicks = 0;
             moveRandomly();
         }
-        // move like monster, but:
-       //  combatTicks++;
-       // if (combatTicks == abilityFrequency) {
-       //     castAbility();
-       //     combatTicks = 0;
-       // }
-    }
-
-    private void chasePlayer() {
-        int dx = player.getPosition().x() - position.x();
-        int dy = player.getPosition().y() - position.y();
-
-        if (Math.abs(dx) > Math.abs(dy)) {
-            tryMove(dx > 0 ? Direction.RIGHT : Direction.LEFT);
-        } else {
-            tryMove(dy > 0 ? Direction.DOWN : Direction.UP);
-        }
     }
 
     @Override
-    public void castAbility() {
-        int attackRoll = Dice.roll(attackPoints);
+    public void castAbility(List<Unit> unitList) {
         int defenseRoll = Dice.roll(player.getDefense());
-        int dmg = Math.max(attackRoll - defenseRoll, 0);
+        int dmg = Math.max(attackPoints - defenseRoll, 0);
         player.takeDamage(dmg);
-        CLI.reportBossCast(this, player, attackRoll, defenseRoll, dmg);
+        notifyCast(this, player, attackPoints, defenseRoll, dmg, "Shoebodybop");
     }
 }
