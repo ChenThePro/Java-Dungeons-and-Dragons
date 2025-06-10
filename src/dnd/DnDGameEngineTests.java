@@ -614,30 +614,3 @@ public class DnDGameEngineTests {
         }
     }
 }
-
-/*
- * ADVANTAGES OF THIS NO-MOCKITO APPROACH:
- *
- * 1. NO EXTERNAL DEPENDENCIES - Only uses JUnit 5
- * 2. EASIER SETUP - No need to configure Mockito
- * 3. MORE REALISTIC TESTING - Tests actual object interactions
- * 4. BETTER INTEGRATION TESTING - Tests real behavior, not mocked behavior
- *
- * TRADE-OFFS:
- *
- * 1. More verbose test helper classes needed
- * 2. Some tests are less isolated (test real objects instead of mocks)
- * 3. Harder to test specific error conditions that are difficult to reproduce
- *
- * RECOMMENDATIONS:
- *
- * Choose this approach if:
- * - You want to minimize dependencies
- * - You prefer testing real object behavior
- * - Your codebase is well-designed for testing without mocks
- *
- * Use the Mockito version if:
- * - You need to test complex error scenarios
- * - You want more isolated unit tests
- * - You're comfortable adding test dependencies
- */
