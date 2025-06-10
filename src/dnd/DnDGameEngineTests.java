@@ -16,10 +16,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-/**
- * Comprehensive test suite for the D&D Game Engine without Mockito dependency.
- * Uses test doubles and real objects for testing.
- */
 public class DnDGameEngineTests {
 
     // =============== Test Helper Classes ===============
@@ -80,7 +76,6 @@ public class DnDGameEngineTests {
 
     static class TestUnit extends Unit {
         private boolean moveToWasCalled = false;
-        private Tile lastTileMovedTo = null;
 
         public TestUnit(Position position, char tile, String name) {
             super(tile, position, name, 50, 10, 5);
@@ -90,7 +85,6 @@ public class DnDGameEngineTests {
         public void moveTo(Tile tile) {
             super.moveTo(tile);
             moveToWasCalled = true;
-            lastTileMovedTo = tile;
         }
 
         @Override
@@ -100,15 +94,6 @@ public class DnDGameEngineTests {
 
         public boolean wasMoveToCall() {
             return moveToWasCalled;
-        }
-
-        public Tile getLastTileMovedTo() {
-            return lastTileMovedTo;
-        }
-
-        public void resetTestState() {
-            moveToWasCalled = false;
-            lastTileMovedTo = null;
         }
     }
 
@@ -176,40 +161,24 @@ public class DnDGameEngineTests {
     @DisplayName("GameController Tests")
     class GameControllerTest {
         private GameController controller;
-        private Tile[][] board;
-        private TestPlayer player;
         private TestGameEventListener listener;
 
         @BeforeEach
         void setUp() {
-            board = new Tile[5][5];
-            player = new TestPlayer(new Position(2, 2));
+            Tile[][] board = new Tile[5][5];
+            TestPlayer player = new TestPlayer(new Position(2, 2));
             listener = new TestGameEventListener();
-
-            // Initialize board with empty tiles
-            for (int y = 0; y < 5; y++) {
-                for (int x = 0; x < 5; x++) {
+            for (int y = 0; y < 5; y++)
+                for (int x = 0; x < 5; x++)
                     board[y][x] = new Empty(new Position(x, y));
-                }
-            }
-
             controller = new GameController(board, player);
             controller.setListener(listener);
-        }
-
-        @Test
-        @DisplayName("Invalid input shows error message")
-        void testInvalidInput() {
-            controller.gameTick('z');
-            assertFalse(listener.failures.isEmpty());
-            assertTrue(listener.failures.getFirst().contains("Invalid input"));
         }
 
         @Test
         @DisplayName("Skip turn works correctly")
         void testSkipTurn() {
             controller.gameTick('q');
-            // Should complete without errors
             assertTrue(listener.failures.isEmpty());
         }
 
@@ -217,7 +186,6 @@ public class DnDGameEngineTests {
         @DisplayName("Cast ability command works")
         void testCastAbility() {
             controller.gameTick('e');
-            // Should complete without errors
             assertTrue(listener.failures.isEmpty());
         }
 
@@ -228,7 +196,6 @@ public class DnDGameEngineTests {
             for (char move : movements) {
                 listener.clear();
                 controller.gameTick(move);
-                // Should not produce failure messages for valid movements
                 assertTrue(listener.failures.isEmpty());
             }
         }
@@ -267,11 +234,8 @@ public class DnDGameEngineTests {
                     #.@.#
                     #...#
                     #####""";
-
             Files.write(tempDir.resolve("level1"), levelContent.lines().toList());
-
             LevelManager.LevelData levelData = levelManager.loadNextLevel(player);
-
             assertNotNull(levelData);
             assertEquals(5, levelData.board().length);
             assertEquals(5, levelData.board()[0].length);
@@ -288,11 +252,8 @@ public class DnDGameEngineTests {
                     #@g#
                     #s.#
                     ####""";
-
             Files.write(tempDir.resolve("level1"), levelContent.lines().toList());
-
             LevelManager.LevelData levelData = levelManager.loadNextLevel(player);
-
             assertNotNull(levelData);
             assertEquals(2, levelData.enemies().size());
         }
@@ -309,10 +270,8 @@ public class DnDGameEngineTests {
         void testMultipleLevels() throws IOException {
             Files.write(tempDir.resolve("level1"), List.of("#@#"));
             Files.write(tempDir.resolve("level2"), List.of("@"));
-
             levelManager.loadNextLevel(player);
             LevelManager.LevelData level2 = levelManager.loadNextLevel(player);
-
             assertNotNull(level2);
             assertEquals(1, level2.board().length);
         }
@@ -329,9 +288,7 @@ public class DnDGameEngineTests {
         void testWallTileBlocks() {
             Wall wall = new Wall(new Position(1, 1));
             TestUnit unit = new TestUnit(new Position(0, 0), 'T', "TestUnit");
-
             wall.accept(unit);
-
             assertFalse(unit.wasMoveToCall());
         }
 
@@ -340,7 +297,6 @@ public class DnDGameEngineTests {
         void testTileSymbols() {
             Empty empty = new Empty(new Position(0, 0));
             Wall wall = new Wall(new Position(0, 0));
-
             assertEquals('.', empty.getTile());
             assertEquals('#', wall.getTile());
             assertEquals(".", empty.toString());
@@ -389,11 +345,9 @@ public class DnDGameEngineTests {
         void testLevelUp() {
             int initialAttack = player.getAttack();
             int initialDefense = player.getDefense();
-
             player.gainXP(50);
-
             assertEquals(2, player.getLevel());
-            assertEquals(0, player.getXP()); // XP resets after level up
+            assertEquals(0, player.getXP());
             assertTrue(player.getAttack() > initialAttack);
             assertTrue(player.getDefense() > initialDefense);
             assertEquals(1, listener.levelUps.size());
@@ -439,14 +393,10 @@ public class DnDGameEngineTests {
             hunter = new Hunter(new Position(1, 1), "TestHunter", 100, 15, 8, 5);
             listener = new TestGameEventListener();
             hunter.setEventListener(listener);
-
-            // Set up board
             board = new Tile[5][5];
-            for (int y = 0; y < 5; y++) {
-                for (int x = 0; x < 5; x++) {
+            for (int y = 0; y < 5; y++)
+                for (int x = 0; x < 5; x++)
                     board[y][x] = new Empty(new Position(x, y));
-                }
-            }
             hunter.setBoard(board);
         }
 
@@ -468,27 +418,18 @@ public class DnDGameEngineTests {
         @DisplayName("Hunter regenerates arrows over time")
         void testArrowRegeneration() {
             int initialArrows = hunter.getArrowsCount();
-
-            // Simulate 10 game ticks
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 10; i++)
                 hunter.onGameTick();
-            }
-
-            // Should regenerate arrows (exact amount depends on implementation)
             assertTrue(hunter.getArrowsCount() >= initialArrows);
         }
 
         @Test
         @DisplayName("Hunter can cast ability")
         void testCastAbility() {
-            // Create a test enemy in range
             Monster enemy = new Monster(new Position(2, 2), 'G', "Goblin", 30, 8, 3, 2, 20);
             enemy.setBoard(board);
-
             int initialArrows = hunter.getArrowsCount();
             hunter.castAbility(List.of(enemy));
-
-            // Either arrows decreased (successful shot) or failure message (no valid targets)
             assertTrue(hunter.getArrowsCount() <= initialArrows || !listener.failures.isEmpty());
         }
     }
@@ -504,15 +445,10 @@ public class DnDGameEngineTests {
         void setUp() {
             monster = new Monster(new Position(0, 0), 'M', "TestMonster", 50, 12, 6, 3, 25);
             TestPlayer player = new TestPlayer(new Position(2, 2));
-
-            // Set up board
             Tile[][] board = new Tile[5][5];
-            for (int y = 0; y < 5; y++) {
-                for (int x = 0; x < 5; x++) {
+            for (int y = 0; y < 5; y++)
+                for (int x = 0; x < 5; x++)
                     board[y][x] = new Empty(new Position(x, y));
-                }
-            }
-
             monster.setBoard(board);
             monster.setPlayerReference(player);
         }
@@ -535,11 +471,7 @@ public class DnDGameEngineTests {
         @Test
         @DisplayName("Monster can perform game tick")
         void testMonsterGameTick() {
-            Position initialPosition = monster.getPosition();
-
             monster.onGameTick();
-
-            // Monster should either move or stay in place - both are valid
             assertNotNull(monster.getPosition());
         }
     }
@@ -554,12 +486,9 @@ public class DnDGameEngineTests {
         @DisplayName("Large board handles properly")
         void testLargeBoard() {
             Tile[][] largeBoard = new Tile[100][100];
-            for (int y = 0; y < 100; y++) {
-                for (int x = 0; x < 100; x++) {
+            for (int y = 0; y < 100; y++)
+                for (int x = 0; x < 100; x++)
                     largeBoard[y][x] = new Empty(new Position(x, y));
-                }
-            }
-
             TestPlayer player = new TestPlayer(new Position(50, 50));
             assertDoesNotThrow(() -> {
                 new GameController(largeBoard, player);
@@ -570,19 +499,13 @@ public class DnDGameEngineTests {
         @DisplayName("Game handles many enemies")
         void testManyEnemies() {
             Tile[][] board = new Tile[10][10];
-            for (int y = 0; y < 10; y++) {
-                for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 10; y++)
+                for (int x = 0; x < 10; x++)
                     board[y][x] = new Empty(new Position(x, y));
-                }
-            }
-
             GameController controller = new GameController(board, new TestPlayer(new Position(5, 5)));
             List<Unit> manyEnemies = new ArrayList<>();
-
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 50; i++)
                 manyEnemies.add(new Monster(new Position(i % 10, i / 10), 'G', "Goblin" + i, 30, 8, 3, 2, 20));
-            }
-
             assertDoesNotThrow(() -> {
                 controller.setEnemies(manyEnemies);
             });
@@ -594,7 +517,6 @@ public class DnDGameEngineTests {
             Position pos1 = new Position(1, 2);
             Position pos2 = new Position(1, 2);
             Position pos3 = new Position(2, 1);
-
             assertEquals(pos1, pos2);
             assertNotEquals(pos1, pos3);
         }
@@ -604,10 +526,8 @@ public class DnDGameEngineTests {
         void testUnitHealthManagement() {
             TestUnit unit = new TestUnit(new Position(0, 0), 'T', "TestUnit");
             int initialHealth = unit.getHealth();
-
             unit.takeDamage(10);
             assertEquals(initialHealth - 10, unit.getHealth());
-
             unit.takeDamage(1000);
             assertTrue(unit.isDead());
             assertTrue(unit.getHealth() <= 0);

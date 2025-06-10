@@ -3,12 +3,12 @@ package dnd.game.engine;
 import dnd.game.tiles.Unit;
 import dnd.game.units.Player;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class CLI implements GameEventListener {
     private final Scanner scanner;
     private final GameController controller;
+    private static final Set<Character> VALID_ACTIONS = new HashSet<>(Arrays.asList('w', 'a', 's', 'd', 'e', 'q'));
 
     public CLI(GameController controller) {
         this.controller = controller;
@@ -19,9 +19,21 @@ public class CLI implements GameEventListener {
     public void start() {
         controller.printBoard();
         controller.displayStats();
-        System.out.print("Action (w/a/s/d/e/q): ");
-        char input = scanner.nextLine().charAt(0);
-        controller.gameTick(input);
+        String inputLine;
+        char actionChar = ' ';
+        boolean validInput = false;
+        while (!validInput) {
+            System.out.print("Action (w/a/s/d/e/q): ");
+            inputLine = scanner.nextLine();
+            if (inputLine.length() == 1) {
+                actionChar = Character.toLowerCase(inputLine.charAt(0));
+                if (VALID_ACTIONS.contains(actionChar))
+                    validInput = true;
+                else onFailure("Invalid action: '" + actionChar + "'. Use w/a/s/d for movement, e for ability, q to skip.");
+            }
+            else onFailure("Please type a command (w/a/s/d/e/q).");
+        }
+        controller.gameTick(actionChar);
     }
 
     public static int choosePlayer() {

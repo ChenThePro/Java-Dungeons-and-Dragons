@@ -8,7 +8,6 @@ import java.util.List;
 
 public class PlayerFactory {
 
-
     public static Player createPlayer(int playerType, Position pos) {
         return switch (playerType) {
             case 0 -> new Warrior(pos, "Jon Snow", 300, 30, 4, 3);

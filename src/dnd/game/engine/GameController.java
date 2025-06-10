@@ -12,7 +12,6 @@ public class GameController {
     private final Tile[][] board;
     private final Player player;
     private List<Unit> enemies = new ArrayList<>();
-    private GameEventListener listener;
 
     public GameController(Tile[][] board, Player player) {
         this.board = board;
@@ -21,7 +20,6 @@ public class GameController {
     }
 
     public void setListener(GameEventListener listener) {
-        this.listener = listener;
         player.setEventListener(listener);
         for (Unit e : enemies)
             e.setEventListener(listener);
@@ -36,12 +34,10 @@ public class GameController {
     }
 
     public void gameTick(char input) {
-        input = Character.toLowerCase(input);
         switch (input) {
             case 'w', 'a', 's', 'd' -> movePlayer(input);
             case 'e' -> castAbility();
             case 'q' -> {}
-            default -> listener.onFailure("Invalid input. Use w/a/s/d for movement, e for ability, q to skip.");
         }
         player.onGameTick();
         enemies.forEach(Unit::onGameTick);
