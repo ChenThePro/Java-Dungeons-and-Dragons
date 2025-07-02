@@ -9,8 +9,8 @@ This is a single-player, multi-level Dungeons and Dragons-themed CLI game develo
 ## 📚 Table of Contents
 
 - [Features](#-features)
-- [Installation](#-installation)
-- [Usage](#-usage)
+- [Installation](#%EF%B8%8F-installation)
+- [Usage](#%EF%B8%8F-usage)
 - [Game Mechanics](#-game-mechanics)
   - [Game Flow](#game-flow)
   - [Tiles](#tiles)
